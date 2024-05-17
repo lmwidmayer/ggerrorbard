@@ -6,20 +6,24 @@
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of `ggerrorbard` is to draw errorbars diagonally instead of
-vertically or horizontally.
+<img src="man/figures/logo.svg" align="right" height="139" />
+
+Building on `ggplot2`, the goal of `ggerrorbard` is to draw diagonal
+errorbars (instead of standard vertical or horizontal errorbars).
 
 ## Installation
 
-You can install the development version of `ggerrorbard` like so:
+You can install the development version of `ggerrorbard` from GitHub
+like this:
 
 ``` r
-# FILL THIS IN! HOW CAN PEOPLE INSTALL YOUR DEV PACKAGE?
+# install.packages("devtools")
+devtools::install_github("lmwidmayer/errorbard")
 ```
 
 ## Example
 
-This is a basic example which shows you how to solve a common problem:
+This is a basic example how to plot the errorbars:
 
 ``` r
 library(ggplot2)
@@ -62,11 +66,12 @@ ggplot(data = dat,
                            color = group),
              size = 4) +
   ggerrorbard::geom_errorbard(data = m,
-                 mapping = aes(xcenter = x, ycenter = y, # center point of errorbar
+                 mapping = aes(xcenter = x, ycenter = y, # center points of errorbars
                                group = group,
                                color = group,
-                               latitude = 2*se, # width of errorbar
-                               angle = -45), # angle of errorbar
+                               latitude = 2*se, # width of errorbars
+                               angle = -45), # angle of errorbars
+                 # arrows on ends of errorbars
                  arrow = arrow(angle = 90, 
                                ends = "both", 
                                length = unit(0.05, "npc")),
