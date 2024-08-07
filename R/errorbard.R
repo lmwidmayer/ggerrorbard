@@ -6,6 +6,7 @@
 GeomErrorbarD <- ggplot2::ggproto("GeomErrorbarD", ggplot2::GeomSegment,
   required_aes = c("xcenter", "ycenter", "latitude", "angle"),
   setup_data = function(data, params) {
+    # rotate start and end points around center points
     transform(data,
       xend = xcenter + (cos(angle * pi / 180)) * latitude / 2,
       yend = ycenter + (sin(angle * pi / 180)) * latitude / 2,
