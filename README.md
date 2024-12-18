@@ -69,7 +69,7 @@ ggplot(data = dat,
                  mapping = aes(xcenter = x, ycenter = y, # center points of error bars
                                group = session,
                                color = session,
-                               latitude = 2*se, # width of error bars
+                               latitude = 2*sd / sqrt(2), # width of error bars
                                angle = -45), # angle of error bars
                  # arrows on ends of error bars
                  arrow = arrow(angle = 90, 
