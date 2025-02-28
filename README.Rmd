@@ -36,60 +36,83 @@ devtools::install_github("lmwidmayer/ggerrorbard")
 
 This is a basic example how to plot the error bars:
 
-```{r example, fig.height = 4}
-library(ggplot2)
-library(ggerrorbard)
+```{r example, warning=FALSE, message=FALSE, fig.height = 4, fig.cap="Pairwise differences. Error bars indicate the standard deviations."}
+library("dplyr")
+library("ggplot2")
+library("ggerrorbard")
 
+# rm(list = ls())
 set.seed(12)
 
 # dummy data
-dat <- data.frame(x = c(rnorm(10, m = 1, sd = 1), 
-                        rnorm(10, m = 4, sd = 2)), 
-                  y = c(rnorm(10, m = 1, sd = 1.5),
-                        rnorm(10, m = 3, sd = 1.8)),
-                  session = c(rep(letters[1:2], each = 10)))
-dat$d <- with(dat, y - x)
+n <- 50
+dat <- data.frame(
+  x = c(
+    rnorm(n, m = 8, sd = 1),
+    rnorm(n, m = 8, sd = 1.75)
+  ),
+  y = c(
+    rnorm(n, m = 4, sd = 1.5),
+    rnorm(n, m = 7, sd = 1.75)
+  ),
+  cond = rep(c('A', 'B'), each = n)
+)
+
 
 # summary of data
-m <- aggregate(cbind(x, y) ~ session, 
-               data = dat, 
-               mean)
-m$sd <- aggregate(d ~ session, 
-                  data = dat, 
-                  sd)[, 2] / sqrt(aggregate(d ~ session, 
-                                            data = dat, 
-                                            length)[, 2])
-m$n <- aggregate(d ~ session, 
-                                            data = dat, 
-                                            length)[, 2]
-m$se <- m$sd / sqrt(m$n)
+dat$d <- with(dat, y - x) # pairwise difference of x and y
+agg <- dat %>%
+  group_by(cond) %>%
+  summarise(x = mean(x),
+            y = mean(y),
+            d_M = mean(d),
+            d_SD = sd(d),
+            d_SE = sd(d) / sqrt(n()),
+            n = n())
 
 # plot
-ggplot(data = dat,
-       mapping = aes(x = x, y = y,
-                     group = session,
-                     color = session)) +
+ggplot(
+  data = dat,
+  mapping = aes(
+    x = x, y = y,
+    group = cond,
+    color = cond
+  )
+) +
   geom_abline(intercept = 0, slope = 1) +
-  geom_point(alpha = 0.4, size = 2) +
-  geom_point(data = m,
-             mapping = aes(x = x, y = y,
-                           group = session,
-                           color = session),
-             size = 4) +
-  ggerrorbard::geom_errorbard(data = m,
-                 mapping = aes(xcenter = x, ycenter = y, # center points of error bars
-                               group = session,
-                               color = session,
-                               latitude = 2*sd / sqrt(2), # width of error bars
-                               angle = -45), # angle of error bars
-                 # arrows on ends of error bars
-                 arrow = arrow(angle = 90, 
-                               ends = "both", 
-                               length = unit(0.05, "npc")),
-                 linewidth = 1.1) +
-  ggtitle("Pairwise difference") +
+  geom_point(alpha = 0.3, shape = 20, size = 3) +
+  geom_point(
+    data = agg,
+    mapping = aes(
+      x = x, y = y,
+      group = cond,
+      color = cond
+    ),
+    shape = 19, size = 3
+  ) +
+  ggerrorbard::geom_errorbard(
+    data = agg,
+    mapping = aes(
+      x = x, y = y, # center points of error bars
+      group = cond,
+      color = cond,
+      latitude = 2 * d_SD / sqrt(2), # width of error bars
+      angle = -45
+    ), # angle of error bars
+    # arrows on ends of error bars
+    arrow = arrow(
+      angle = 90,
+      ends = "both",
+      length = unit(0.05, "npc")
+    ),
+    linewidth = 1.1
+  ) +
+  scale_x_continuous(expand = c(0, 0), limits = c(0, 12)) +
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 12)) +
+  guides(color = guide_legend(override.aes = list(linetype = 0))) +
   coord_equal() +
-  theme_minimal()
+  theme_minimal() +
+  theme(legend.position = "top")
 ```
 
 ## Limitations
