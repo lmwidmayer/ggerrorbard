@@ -71,7 +71,7 @@ the default plot specification, e.g. \code{\link[ggplot2:borders]{borders()}}.}
 \description{
 Draw a diagonal (or arbitrarily oriented) error bar in a \code{ggplot2}, inherits from \link[ggplot2:geom_segment]{ggplot2::geom_segment}.
 
-The error bar is defined by aesthetic mappings for the center x coordinate (\code{x}), center y coordinate (\code{y}), total breadth of the error interval (\code{latitude}), and angle of the error bar in degrees (\code{angle}).
+The error bar is defined by aesthetic mappings for the center x coordinate (\code{x}), center y coordinate (\code{y}), breadth of the error interval (\code{radius}) on either side of the center, and angle of the error bar in degrees (\code{angle_deg}).
 }
 \seealso{
 [\link[ggplot2:geom_segment]{ggplot2::geom_segment}]

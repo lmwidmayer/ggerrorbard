@@ -35,6 +35,8 @@ set.seed(12)
 
 # dummy data
 n <- 50
+alpha.error <- 0.05
+
 dat <- data.frame(
   x = c(
     rnorm(n, m = 8, sd = 1),
@@ -52,15 +54,19 @@ dat <- data.frame(
 dat$d <- with(dat, y - x) # pairwise difference of x and y
 agg <- dat %>%
   group_by(cond) %>%
-  summarise(x = mean(x),
-            y = mean(y),
+  summarise(x_M = mean(x),
+            x_SD = sd(x),
+            x_SE = sd(x) / sqrt(n()),
+            y_M = mean(y),
+            y_SD = sd(y),
+            y_SE = sd(y) / sqrt(n()),
             d_M = mean(d),
             d_SD = sd(d),
             d_SE = sd(d) / sqrt(n()),
             n = n())
 
 # plot
-ggplot(
+plt <- ggplot(
   data = dat,
   mapping = aes(
     x = x, y = y,
@@ -69,32 +75,68 @@ ggplot(
   )
 ) +
   geom_abline(intercept = 0, slope = 1) +
+  # observations
   geom_point(alpha = 0.3, shape = 20, size = 3) +
+  # means
   geom_point(
     data = agg,
     mapping = aes(
-      x = x, y = y,
+      x = x_M, y = y_M,
       group = cond,
       color = cond
     ),
     shape = 19, size = 3
   ) +
+  # errors of means
   ggerrorbard::geom_errorbard(
     data = agg,
     mapping = aes(
-      x = x, y = y, # center points of error bars
+      x = x_M, y = y_M, # center points of error bars
       group = cond,
       color = cond,
-      latitude = 2 * d_SD / sqrt(2), # width of error bars
-      angle = -45
-    ), # angle of error bars
+      radius = y_SD, # radius of y error bars
+      angle_deg = 0
+    ),
+    arrow = arrow(
+      angle = 90,
+      ends = "both",
+      length = unit(0.025, "npc")
+    ),
+    linewidth = 1
+  ) +
+    ggerrorbard::geom_errorbard(
+    data = agg,
+    mapping = aes(
+      x = x_M, y = y_M, # center points of error bars
+      group = cond,
+      color = cond,
+      radius = x_SD, # radius of x error bars
+      angle_deg = 90
+    ),
+    arrow = arrow(
+      angle = 90,
+      ends = "both",
+      length = unit(0.025, "npc")
+    ),
+    linewidth = 1
+  ) +
+  # error of differences of means
+  ggerrorbard::geom_errorbard(
+    data = agg,
+    mapping = aes(
+      x = x_M, y = y_M, # center points of error bars
+      group = cond,
+      color = cond,
+      radius = d_SD / 2 * sqrt(2), # radius of error bars, adjusted of 45° rotation (?)
+      angle_deg = 45
+    ),
     # arrows on ends of error bars
     arrow = arrow(
       angle = 90,
       ends = "both",
-      length = unit(0.05, "npc")
+      length = unit(0.025, "npc")
     ),
-    linewidth = 1.1
+    linewidth = 1
   ) +
   scale_x_continuous(expand = c(0, 0), limits = c(0, 12)) +
   scale_y_continuous(expand = c(0, 0), limits = c(0, 12)) +
@@ -102,16 +144,22 @@ ggplot(
   coord_equal() +
   theme_minimal() +
   theme(legend.position = "top")
+
+print(plt)
 ```
 
 <div class="figure">
 
-<img src="man/figures/README-example-1.png" alt="Pairwise differences. Error bars indicate the standard deviations." width="100%" />
+<img src="man/figures/README-example-1.png" alt="Pairwise differences. Error bars represent the standard deviations." width="100%" />
 <p class="caption">
-Pairwise differences. Error bars indicate the standard deviations.
+Pairwise differences. Error bars represent the standard deviations.
 </p>
 
 </div>
+
+Use `angle_deg = 0` for standard vertical error bars and
+`angle_deg = 90` for horizontal error bars. For diagonal error bars,
+specify `angle_deg = 45`.
 
 ## Limitations
 

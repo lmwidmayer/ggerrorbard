@@ -2,3 +2,4 @@
 
 export(GeomErrorbarD)
 export(geom_errorbard)
+export(rotate_around)
