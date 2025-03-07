@@ -12,7 +12,6 @@
 #' @examples
 #' rotate_around(3, 4, 1, 2, 90)
 rotate_around <- function(x, y, cx, cy, angle_deg) {
-
   angle_rad <- angle_deg * (pi / 180)
 
   # Translate to the origin
@@ -40,26 +39,48 @@ rotate_around <- function(x, y, cx, cy, angle_deg) {
 GeomErrorbarD <- ggplot2::ggproto("GeomErrorbarD", ggplot2::GeomSegment,
   required_aes = c("x", "y", "radius", "angle_deg"),
   setup_data = function(data, params) {
+    angle_type <- unique(data$angle_deg)
+    if (angle_type == "v" || angle_type == 0) {
+      # center, start, and end
+      data$cx <- data$x
+      data$cy <- data$y
+      data$xend <- data$x
+      data <- transform(
+        data,
+        y = y - radius,
+        yend = y + radius
+      )
+    } else if (angle_type == "h" || angle_type == 90) {
+      # center, start, and end
+      data$cx <- data$x
+      data$cy <- data$y
+      data$yend <- data$y
+      data <- transform(
+        data,
+        x = x - radius,
+        xend = x + radius
+      )
+    } else {
+      # center, start, and end
+      data$cx <- data$x
+      data$cy <- data$y
+      data$xend <- data$x
+      data <- transform(
+        data,
+        y = y - radius,
+        yend = y + radius
+      )
 
-    # center, start, and end
-    data$cx <- data$x
-    data$cy <- data$y
-    data$xend <- data$x
-    data <- transform(
-      data,
-      y = y - radius,
-      yend = y + radius
-    )
+      # rotate
+      rotated_start <- rotate_around(data$x, data$y, data$cx, data$cy, data$angle_deg)
+      colnames(rotated_start) <- c("x", "y")
+      rotated_end <- rotate_around(data$xend, data$yend, data$cx, data$cy, data$angle_deg)
+      colnames(rotated_end) <- c("x", "y")
 
-    # rotate
-    rotated_start <- rotate_around(data$x, data$y, data$cx, data$cy, data$angle_deg)
-    colnames(rotated_start) <- c("x", "y")
-    rotated_end <- rotate_around(data$xend, data$yend, data$cx, data$cy, data$angle_deg)
-    colnames(rotated_end) <- c("x", "y")
-
-    # update
-    data[, c("x", "y")] <- data.frame(rotated_start)
-    data[, c("xend", "yend")] <- data.frame(rotated_end)
+      # update
+      data[, c("x", "y")] <- data.frame(rotated_start)
+      data[, c("xend", "yend")] <- data.frame(rotated_end)
+    }
 
     return(data)
   }

@@ -27,7 +27,7 @@ Building on `ggplot2`, the goal of `ggerrorbard` is to draw diagonal error bars 
 
 You can install the development version of `ggerrorbard` from GitHub like this:
 
-``` r
+```{r}
 # install.packages("devtools")
 devtools::install_github("lmwidmayer/ggerrorbard")
 ```
@@ -106,7 +106,7 @@ plt <- ggplot(
       group = cond,
       color = cond,
       radius = y_SD, # radius of y error bars
-      angle_deg = 0
+      angle_deg = "v"
     ),
     arrow = arrow(
       angle = 90,
@@ -159,7 +159,7 @@ plt <- ggplot(
 print(plt)
 ```
 
-Use `angle_deg = 0` for standard vertical error bars and `angle_deg = 90` for horizontal error bars. For diagonal error bars, specify `angle_deg = 45`.
+Use `angle_deg = 0` or `angle_deg = "v"` for standard vertical error bars and `angle_deg = 90` or `angle_deg = "h"` for horizontal error bars. For diagonal error bars, specify `angle_deg = 45`.
 
 ## Limitations
 
